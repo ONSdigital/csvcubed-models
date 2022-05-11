@@ -8,7 +8,9 @@ pipeline {
     stages {
         stage('Setup') {
             // Make sure that poetry installs the local package.
-            sh 'poetry install'
+            steps {
+                sh 'poetry install'
+            }
         }
         stage('Pyright') {
             when { not { buildingTag() } }
