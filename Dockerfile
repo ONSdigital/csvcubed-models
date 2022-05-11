@@ -1,36 +1,20 @@
-FROM python:3.9
+FROM gsscogs/pythonversiontesting:v1.0.1
 
-# Installing packages required by docker.
-# To prevent any cache related issues that could occur when building the container and during apt-get install, the apt-get update and apt-get install are added to the same RUN statement 
-# as per the instructions in https://docs.docker.com/develop/develop-images/dockerfile_best-practices/#run.
-RUN apt-get update && apt-get install -y \
-  apt-transport-https \
-  ca-certificates \
-  curl \
-  gnupg \
-  lsb-release
+RUN pyenv global 3.10.0
 
-RUN curl -fsSL https://download.docker.com/linux/debian/gpg | gpg --dearmor -o /usr/share/keyrings/docker-archive-keyring.gpg
+WORKDIR /
 
-RUN echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/docker-archive-keyring.gpg] https://download.docker.com/linux/debian \
-  $(lsb_release -cs) stable" | tee /etc/apt/sources.list.d/docker.list > /dev/null
+# Install all dependencies for project
+COPY poetry.lock /
+COPY pyproject.toml /
 
-# To prevent any cache related issues that could occur when building the container and during apt-get install, the apt-get update and apt-get install are added to the same RUN statement 
-# as per the instructions in https://docs.docker.com/develop/develop-images/dockerfile_best-practices/#run.
-RUN apt-get update && apt-get install -y docker-ce docker-ce-cli containerd.io
+RUN poetry export --format requirements.txt --output /requirements.txt --without-hashes --dev
+# Install all dependencies listed in text file to the test environment.
+RUN pip install --requirement /requirements.txt
 
-RUN python3 -m pip install poetry
+# Patch behave
+RUN bash -c 'export python_dir=$(python -c "import site; print(site.getsitepackages()[0])") && patch -Nf -d "$python_dir/behave/formatter" -p1 < /cucumber-format.patch || true'
 
-ADD https://raw.githubusercontent.com/GSS-Cogs/gss-utils/master/cucumber-format.patch /
+RUN rm /poetry.lock /pyproject.toml /requirements.txt
 
-RUN apt-get install -y git 
-
-# Pyright (nodejs)
-RUN curl -fsSL https://deb.nodesource.com/setup_16.x | bash -
-RUN apt-get install -y nodejs
-RUN npm install -g pyright
-
-RUN python3 -m pip install mkdocs mkdocs-material mkdocs-mermaid2-plugin
-
-RUN mkdir /workspace
 WORKDIR /workspace
