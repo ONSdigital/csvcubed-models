@@ -9,7 +9,7 @@ pipeline {
         stage('Pyright') {
             when { not { buildingTag() } }
             steps {
-                sh 'pyright . --lib'
+                sh 'poetry run pyright . --lib'
             }
         }
         stage('Test') {
@@ -18,7 +18,7 @@ pipeline {
                 script {
                     try {
                         dir('tests/unit') {
-                            sh "pytest --junitxml=pytest_results_models.xml"
+                            sh "poetry run pytest --junitxml=pytest_results_models.xml"
                         }
                     } catch (ex) {
                         echo "An error occurred when testing: ${ex}"
