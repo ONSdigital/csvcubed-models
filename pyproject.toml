@@ -1,14 +1,13 @@
 [tool.poetry]
 authors = ["Integrated Data Service - Dissemination <csvcubed@gsscogs.uk>"]
 description = "Models and RDF serialisation functionality useful to the csvcubed family of tools."
-exclude = ["docs/*"]
 license = "Apache-2.0"
 name = "csvcubed-models"
 packages = [
-  {include = "csvcubedmodels"},
+  {include = "csvcubedmodels", from = "src"},
 ]
-readme = "csvcubedmodels/README.md"
-version = "0.1.0"
+readme = "README.md"
+version = "0.1.0-dev"
 
 [tool.poetry.dependencies]
 python = "^3.9"
@@ -17,7 +16,7 @@ unidecode = "*"
 python-dateutil = "^2.8.2"
 
 [tool.poetry.dev-dependencies]
-csvcubed-devtools = {path = "./../csvcubed-devtools", develop = true}
+csvcubed-devtools = "==v0.1.1"
 
 [build-system]
 build-backend = "poetry.core.masonry.api"
@@ -30,4 +29,4 @@ exclude = [
   "**/build",
   "**/.tox",
 ]
-pythonVersion = "3.9"
+pythonVersion = "3.10"
