@@ -7,6 +7,7 @@ from csvcubedmodels.rdf.resource import (
     NewResource,
     map_str_to_en_literal,
     map_resource_to_uri,
+    map_str_to_markdown,
     Resource,
     ExistingResource,
     InversePredicate,
@@ -314,6 +315,130 @@ def test_arbitrary_rdf_triple_serialisation():
         URIRef("http://some-entity-uri"),
     ) in graph
 
+def test_markdown_datatype():
+    """ """
+
+    class A(NewResource):
+        p: Annotated[
+            str,
+            Triple(
+                URIRef("http://original-uri"),
+                PropertyStatus.recommended,
+                map_str_to_markdown,
+            ),
+        ]
+    a = A("http://some-a-uri")
+    a.p = "Hello, World"
+
+    graph = a.to_graph(Graph())
+
+    assert len(graph) == 2
+    assert (
+        URIRef("http://some-a-uri"),
+        URIRef("http://original-uri"),
+        Literal("Hello, World", datatype="https://www.w3.org/ns/iana/media-types/text/markdown#Resource"),
+    ) in graph
+
+    assert (
+        URIRef("http://some-a-uri"),
+        RDF.type,
+        RDFS.Resource,
+    ) in graph
+
+def test_simple_html_detected_in_markdown(capsys):
+    """Testing to see if a simple, frequently used, tag is detected in a markdown"""
+    example_html_in_markdown = """
+    # This is some example markdown
+    ```html
+        Some example nonsense <p>hi</p>
+    ```
+    """
+    map_str_to_markdown(example_html_in_markdown)
+    captured = capsys.readouterr()
+    assert captured.out == "True\n"
+
+def test_uncommon_html_tag_detected_in_markdown(capsys):
+    """Testing to see if a uncommon, less frequently used, tag is detected in a markdown """
+    example_html_in_markdown = """
+    # This is some example markdown
+    <blockquote cite="http://www.worldwildlife.org/who/index.html">
+    For nearly 60 years, WWF has been protecting the future of nature. The world's leading conservation organization, WWF works in 100 countries and is supported by more than one million members in the United States and close to five million globally.
+    </blockquote>
+    """
+    map_str_to_markdown(example_html_in_markdown)
+    captured = capsys.readouterr()
+    assert captured.out == "True\n"
+
+def test_html_images_detected_in_markdown(capsys):
+    """Test that an image tag, with referece to an image, gets detected in markdown"""
+    example_html_in_markdown = """
+    # This is some example markdown
+    <img src="img_girl.jpg" alt="Girl with a jacket" width="500" height="600">
+    """
+    map_str_to_markdown(example_html_in_markdown)
+    captured = capsys.readouterr()
+    assert captured.out == "True\n"
+
+def test_mixture_of_html_tags_detected_in_markdown(capsys):
+    """Testing that a mixture of tags are detected in markdown """
+    example_html_in_markdown = """
+    <!DOCTYPE html>
+    <html>
+    <body>
+
+    <h2>HTML Buttons</h2>
+    <p>HTML buttons are defined with the button tag:</p>
+
+    <button>Click me</button>
+
+    </body>
+    </html>
+    """
+    map_str_to_markdown(example_html_in_markdown)
+    captured = capsys.readouterr()
+    assert captured.out == "True\n"
+
+def test_none_tag_detected_in_markdown(capsys):
+    """Testing variations of greater than and less than sign don't get identified as html"""
+    example_html_in_markdown = """
+    # This is some example markdown without any html
+    but does contain these < > and this <> 
+    """
+    map_str_to_markdown(example_html_in_markdown)
+    captured = capsys.readouterr()
+    assert captured.out == "False\n"
+
+def test_algebraic_expressions_with_spaces_detected_in_markdown(capsys):
+    """Testing algebraic expressions that have spaces between the 
+    greater than and less than symbols don't get identified as html"""
+    example_html_in_markdown = """
+    x > y,
+    x < y,
+    x < z < y,
+    x > y > z
+    """
+    map_str_to_markdown(example_html_in_markdown)
+    captured = capsys.readouterr()
+    assert captured.out == "False\n"
+
+def test_algebraic_expressions_without_spaces_detected_in_markdown(capsys):
+    """Testing algebraic expressions get identified as html even tho
+    they cleary aren't"""
+    example_html_in_markdown = """
+    x<z<y , x>y>z
+    """
+    map_str_to_markdown(example_html_in_markdown)
+    captured = capsys.readouterr()
+    assert captured.out == "True\n"
+
+def test_no_html_detected_in_markdown(capsys):
+    """Testing that no html is detected in a text only markdown"""
+    example_html_in_markdown = """
+    # This is some example markdown without any html
+    """
+    map_str_to_markdown(example_html_in_markdown)
+    captured = capsys.readouterr()
+    assert captured.out == "False\n"
 
 if __name__ == "__main__":
     pytest.main()

@@ -21,6 +21,7 @@ from typing import (
 import rdflib
 from rdflib import URIRef, Graph
 from rdflib.term import Literal, Identifier
+from html.parser import HTMLParser
 
 from .datatypes import MARKDOWN
 from .triple import AbstractTriple, Triple, PropertyStatus
@@ -198,9 +199,24 @@ def map_resource_to_uri(entity: RdfResource) -> URIRef:
 def map_to_literal_with_datatype(datatype: URIRef) -> Callable[[Any], Literal]:
     return lambda val: Literal(val, datatype=datatype)
 
+def map_str_to_markdown(s: str, log_html_warning: bool = True) -> Literal:
+    class ContainsHtmlParser(HTMLParser):
+        contains_html: bool
 
-def map_str_to_markdown(s: str) -> Literal:
-    return Literal(s, MARKDOWN)
+        def __init__(self):
+            HTMLParser.__init__(self)
+            self.contains_html = False
+
+        def handle_starttag(self, tag, attrs):
+            self.contains_html = True
+
+        def handle_endtag(self, tag):
+            self.contains_html = True
+
+    parser = ContainsHtmlParser()
+    parser.feed(s)
+    print(parser.contains_html)
+    return map_to_literal_with_datatype(MARKDOWN)(s)
 
 
 class NewResourceWithLabel(NewResource, ABC):
