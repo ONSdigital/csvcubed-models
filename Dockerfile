@@ -28,7 +28,7 @@ RUN ${VENV_PIP} install --requirement /requirements.txt
 RUN ${VENV_PIP} install poetry
 
 # Patch behave
-RUN VIRTUAL_ENV="${VENV_PATH}" ${VENV_POETRY} run python_dir=$(python -c "import site; print(site.getsitepackages()[0])") && patch -Nf -d "$python_dir/behave/formatter" -p1 < /cucumber-format.patch || true
+RUN patch -Nf -d "${VENV_PATH}/lib/python3.10/site-packages/behave/formatter" -p1 < /cucumber-format.patch
 
 RUN rm -rf /workspace/*
 
