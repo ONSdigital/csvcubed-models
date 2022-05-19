@@ -355,7 +355,7 @@ def test_simple_html_detected_in_markdown(capsys):
     """
     map_str_to_markdown(example_html_in_markdown)
     captured = capsys.readouterr()
-    assert captured.out == "True\n"
+    assert captured.out == "WARNING: Markdown contains HTML\n"
 
 def test_uncommon_html_tag_detected_in_markdown(capsys):
     """Testing to see if a uncommon, less frequently used, tag is detected in a markdown """
@@ -367,7 +367,7 @@ def test_uncommon_html_tag_detected_in_markdown(capsys):
     """
     map_str_to_markdown(example_html_in_markdown)
     captured = capsys.readouterr()
-    assert captured.out == "True\n"
+    assert captured.out == "WARNING: Markdown contains HTML\n"
 
 def test_html_images_detected_in_markdown(capsys):
     """Test that an image tag, with referece to an image, gets detected in markdown"""
@@ -377,7 +377,7 @@ def test_html_images_detected_in_markdown(capsys):
     """
     map_str_to_markdown(example_html_in_markdown)
     captured = capsys.readouterr()
-    assert captured.out == "True\n"
+    assert captured.out == "WARNING: Markdown contains HTML\n"
 
 def test_mixture_of_html_tags_detected_in_markdown(capsys):
     """Testing that a mixture of tags are detected in markdown """
@@ -396,7 +396,7 @@ def test_mixture_of_html_tags_detected_in_markdown(capsys):
     """
     map_str_to_markdown(example_html_in_markdown)
     captured = capsys.readouterr()
-    assert captured.out == "True\n"
+    assert captured.out == "WARNING: Markdown contains HTML\n"
 
 def test_none_tag_detected_in_markdown(capsys):
     """Testing variations of greater than and less than sign don't get identified as html"""
@@ -406,7 +406,7 @@ def test_none_tag_detected_in_markdown(capsys):
     """
     map_str_to_markdown(example_html_in_markdown)
     captured = capsys.readouterr()
-    assert captured.out == "False\n"
+    assert captured.out == ""
 
 def test_algebraic_expressions_with_spaces_detected_in_markdown(capsys):
     """Testing algebraic expressions that have spaces between the 
@@ -419,7 +419,7 @@ def test_algebraic_expressions_with_spaces_detected_in_markdown(capsys):
     """
     map_str_to_markdown(example_html_in_markdown)
     captured = capsys.readouterr()
-    assert captured.out == "False\n"
+    assert captured.out == ""
 
 def test_algebraic_expressions_without_spaces_detected_in_markdown(capsys):
     """Testing algebraic expressions get identified as html even though
@@ -429,7 +429,7 @@ def test_algebraic_expressions_without_spaces_detected_in_markdown(capsys):
     """
     map_str_to_markdown(example_html_in_markdown)
     captured = capsys.readouterr()
-    assert captured.out == "True\n"
+    assert captured.out == "WARNING: Markdown contains HTML\n"
 
 def test_no_html_detected_in_markdown(capsys):
     """Testing that no html is detected in a text only markdown"""
@@ -438,7 +438,7 @@ def test_no_html_detected_in_markdown(capsys):
     """
     map_str_to_markdown(example_html_in_markdown)
     captured = capsys.readouterr()
-    assert captured.out == "False\n"
+    assert captured.out == ""
 
 if __name__ == "__main__":
     pytest.main()
