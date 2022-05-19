@@ -422,7 +422,7 @@ def test_algebraic_expressions_with_spaces_detected_in_markdown(capsys):
     assert captured.out == "False\n"
 
 def test_algebraic_expressions_without_spaces_detected_in_markdown(capsys):
-    """Testing algebraic expressions get identified as html even tho
+    """Testing algebraic expressions get identified as html even though
     they cleary aren't"""
     example_html_in_markdown = """
     x<z<y , x>y>z
