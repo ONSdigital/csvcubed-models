@@ -17,7 +17,6 @@ from typing import (
     Tuple,
     Callable,
 )
-import warnings
 
 import rdflib
 from rdflib import URIRef, Graph
@@ -217,7 +216,6 @@ def map_str_to_markdown(s: str, log_html_warning: bool = True) -> Literal:
     parser = ContainsHtmlParser()
     parser.feed(s)
     if parser.contains_html == True:
-        #warnings.warn("Markdown contains HTML")
         print("WARNING: Markdown contains HTML")
     return map_to_literal_with_datatype(MARKDOWN)(s)
 
