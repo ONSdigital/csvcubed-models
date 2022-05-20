@@ -352,7 +352,7 @@ def test_italic_detected_as_html(capsys):
     """
     map_str_to_markdown(example_html_in_markdown)
     captured = capsys.readouterr()
-    assert captured.out == ""
+    assert captured.out + captured.err == ""
 
 def test_link_detected_as_html(capsys):
     """Testing a link in a markdown isn't detected as html."""
@@ -361,7 +361,7 @@ def test_link_detected_as_html(capsys):
     """
     map_str_to_markdown(example_html_in_markdown)
     captured = capsys.readouterr()
-    assert captured.out == ""
+    assert captured.out + captured.err == ""
 
 def test_horizontal_rule_detected_as_html(capsys):
     """Testing the Horizontal Rule in a markdown isn't detected as html."""
@@ -370,7 +370,7 @@ def test_horizontal_rule_detected_as_html(capsys):
     """
     map_str_to_markdown(example_html_in_markdown)
     captured = capsys.readouterr()
-    assert captured.out == ""
+    assert captured.out + captured.err == ""
 
 def test_code_detected_as_html(capsys):
     """Testing code in a markdown isn't detected as html."""
@@ -381,7 +381,7 @@ def test_code_detected_as_html(capsys):
     """
     map_str_to_markdown(example_html_in_markdown)
     captured = capsys.readouterr()
-    assert captured.out == ""
+    assert captured.out + captured.err == ""
 
 def test_unordered_list_detected_as_html(capsys):
     """Testing unordered list in a markdown isn't detected as html."""
@@ -392,7 +392,7 @@ def test_unordered_list_detected_as_html(capsys):
     """
     map_str_to_markdown(example_html_in_markdown)
     captured = capsys.readouterr()
-    assert captured.out == ""
+    assert captured.out + captured.err == ""
 
 def test_ordered_list_detected_as_html(capsys):
     """Testing ordered list in a markdown isn't detected as html."""
@@ -403,7 +403,7 @@ def test_ordered_list_detected_as_html(capsys):
     """
     map_str_to_markdown(example_html_in_markdown)
     captured = capsys.readouterr()
-    assert captured.out == ""
+    assert captured.out + captured.err == ""
 
 def test_image_detected_as_html(capsys):
     """Testing image in a markdown isn't detected as html."""
@@ -412,7 +412,7 @@ def test_image_detected_as_html(capsys):
     """
     map_str_to_markdown(example_html_in_markdown)
     captured = capsys.readouterr()
-    assert captured.out == ""
+    assert captured.out + captured.err == ""
 
 def test_blockquote_tag_detected_as_html(capsys):
     """Testing blockquote in a markdown isn't detected as html."""
@@ -421,7 +421,7 @@ def test_blockquote_tag_detected_as_html(capsys):
     """
     map_str_to_markdown(example_html_in_markdown)
     captured = capsys.readouterr()
-    assert captured.out == ""
+    assert captured.out + captured.err == ""
 
 def test_headings_detected_as_html(capsys):
     """Testing headings in a markdown isn't detected as html."""
@@ -432,7 +432,7 @@ def test_headings_detected_as_html(capsys):
      """
     map_str_to_markdown(example_html_in_markdown)
     captured = capsys.readouterr()
-    assert captured.out == ""
+    assert captured.out + captured.err == ""
 
 def test_bold_text_is_detected_as_html(capsys):
     """Testing bold text in a markdown isn't detected as html."""
@@ -441,7 +441,7 @@ def test_bold_text_is_detected_as_html(capsys):
     """
     map_str_to_markdown(example_html_in_markdown)
     captured = capsys.readouterr()
-    assert captured.out == ""
+    assert captured.out + captured.err == ""
 
 def test_none_tag_detected_as_html(capsys):
     """Testing variations of greater than and less than signs, don't get identified as html"""
@@ -451,7 +451,7 @@ def test_none_tag_detected_as_html(capsys):
     """
     map_str_to_markdown(example_html_in_markdown)
     captured = capsys.readouterr()
-    assert captured.out == ""
+    assert captured.out + captured.err == ""
 
 def test_algebraic_expressions_with_spaces__is_detected_as_html(capsys):
     """Testing algebraic expressions that have spaces between the 
@@ -464,7 +464,7 @@ def test_algebraic_expressions_with_spaces__is_detected_as_html(capsys):
     """
     map_str_to_markdown(example_html_in_markdown)
     captured = capsys.readouterr()
-    assert captured.out == ""
+    assert captured.out + captured.err == ""
 
 def test_algebraic_expressions_without_spaces_is_detected_as_html(capsys):
     """Testing algebraic expressions get identified as html even though
@@ -474,7 +474,7 @@ def test_algebraic_expressions_without_spaces_is_detected_as_html(capsys):
     """
     map_str_to_markdown(example_html_in_markdown)
     captured = capsys.readouterr()
-    assert captured.out == "WARNING: Markdown contains HTML\n"
+    assert "Markdown contains HTML" in captured.out + captured.err
 
 def test_no_html_detected_in_markdown(capsys):
     """Testing that no html is detected in a text only markdown"""
@@ -483,7 +483,7 @@ def test_no_html_detected_in_markdown(capsys):
     """
     map_str_to_markdown(example_html_in_markdown)
     captured = capsys.readouterr()
-    assert captured.out == ""
+    assert captured.out + captured.err == ""
 
 if __name__ == "__main__":
     pytest.main()

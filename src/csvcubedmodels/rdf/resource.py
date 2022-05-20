@@ -4,6 +4,8 @@ Resources
 """
 from abc import ABC
 from collections.abc import Iterable
+import logging
+import sys
 from typing import (
     Annotated,
     List,
@@ -27,6 +29,8 @@ from .datatypes import MARKDOWN
 from .triple import AbstractTriple, Triple, PropertyStatus
 from csvcubedmodels.rdf.namespaces import RDF, RDFS
 
+
+logger = logging.getLogger(__name__)
 
 class RdfResource(ABC):
     uri: URIRef
@@ -216,7 +220,10 @@ def map_str_to_markdown(s: str, log_html_warning: bool = True) -> Literal:
     parser = ContainsHtmlParser()
     parser.feed(s)
     if parser.contains_html == True:
-        print("WARNING: Markdown contains HTML")
+        handler = logging.StreamHandler(sys.stdout)
+        handler.setLevel(logging.WARNING)
+        logger.addHandler(handler)
+        logger.warning("Markdown contains HTML")
     return map_to_literal_with_datatype(MARKDOWN)(s)
 
 
