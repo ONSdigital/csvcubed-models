@@ -345,70 +345,115 @@ def test_markdown_datatype():
         RDFS.Resource,
     ) in graph
 
-def test_simple_html_detected_in_markdown(capsys):
-    """Testing to see if a simple, frequently used, tag is detected in a markdown"""
+def test_italic_detected_as_html(capsys):
+    """Testing italicized text in a markdown isn't detected as html."""
     example_html_in_markdown = """
-    # This is some example markdown
-    ```html
-        Some example nonsense <p>hi</p>
-    ```
-    """
-    map_str_to_markdown(example_html_in_markdown)
-    captured = capsys.readouterr()
-    assert captured.out == "WARNING: Markdown contains HTML\n"
-
-def test_uncommon_html_tag_detected_in_markdown(capsys):
-    """Testing to see if a uncommon, less frequently used, tag is detected in a markdown """
-    example_html_in_markdown = """
-    # This is some example markdown
-    <blockquote cite="http://www.worldwildlife.org/who/index.html">
-    For nearly 60 years, WWF has been protecting the future of nature. The world's leading conservation organization, WWF works in 100 countries and is supported by more than one million members in the United States and close to five million globally.
-    </blockquote>
-    """
-    map_str_to_markdown(example_html_in_markdown)
-    captured = capsys.readouterr()
-    assert captured.out == "WARNING: Markdown contains HTML\n"
-
-def test_html_images_detected_in_markdown(capsys):
-    """Test that an image tag, with referece to an image, gets detected in markdown"""
-    example_html_in_markdown = """
-    # This is some example markdown
-    <img src="img_girl.jpg" alt="Girl with a jacket" width="500" height="600">
-    """
-    map_str_to_markdown(example_html_in_markdown)
-    captured = capsys.readouterr()
-    assert captured.out == "WARNING: Markdown contains HTML\n"
-
-def test_mixture_of_html_tags_detected_in_markdown(capsys):
-    """Testing that a mixture of tags are detected in markdown """
-    example_html_in_markdown = """
-    <!DOCTYPE html>
-    <html>
-    <body>
-
-    <h2>HTML Buttons</h2>
-    <p>HTML buttons are defined with the button tag:</p>
-
-    <button>Click me</button>
-
-    </body>
-    </html>
-    """
-    map_str_to_markdown(example_html_in_markdown)
-    captured = capsys.readouterr()
-    assert captured.out == "WARNING: Markdown contains HTML\n"
-
-def test_none_tag_detected_in_markdown(capsys):
-    """Testing variations of greater than and less than sign don't get identified as html"""
-    example_html_in_markdown = """
-    # This is some example markdown without any html
-    but does contain these < > and this <> 
+    *italicized text*
     """
     map_str_to_markdown(example_html_in_markdown)
     captured = capsys.readouterr()
     assert captured.out == ""
 
-def test_algebraic_expressions_with_spaces_detected_in_markdown(capsys):
+def test_link_detected_as_html(capsys):
+    """Testing a link in a markdown isn't detected as html."""
+    example_html_in_markdown = """
+    [title](https://www.example.com)
+    """
+    map_str_to_markdown(example_html_in_markdown)
+    captured = capsys.readouterr()
+    assert captured.out == ""
+
+def test_horizontal_rule_detected_as_html(capsys):
+    """Testing the Horizontal Rule in a markdown isn't detected as html."""
+    example_html_in_markdown = """
+    -----------
+    """
+    map_str_to_markdown(example_html_in_markdown)
+    captured = capsys.readouterr()
+    assert captured.out == ""
+
+def test_code_detected_as_html(capsys):
+    """Testing code in a markdown isn't detected as html."""
+    example_html_in_markdown = """
+    `x = 3
+    y = 4
+    x + y`
+    """
+    map_str_to_markdown(example_html_in_markdown)
+    captured = capsys.readouterr()
+    assert captured.out == ""
+
+def test_unordered_list_detected_as_html(capsys):
+    """Testing unordered list in a markdown isn't detected as html."""
+    example_html_in_markdown = """
+    - First item
+    - Second item
+    - Third item
+    """
+    map_str_to_markdown(example_html_in_markdown)
+    captured = capsys.readouterr()
+    assert captured.out == ""
+
+def test_ordered_list_detected_as_html(capsys):
+    """Testing ordered list in a markdown isn't detected as html."""
+    example_html_in_markdown = """
+    1. First item
+    2. Second item
+    3. Third item
+    """
+    map_str_to_markdown(example_html_in_markdown)
+    captured = capsys.readouterr()
+    assert captured.out == ""
+
+def test_image_detected_as_html(capsys):
+    """Testing image in a markdown isn't detected as html."""
+    example_html_in_markdown = """
+    ![alt text](image.jpg)
+    """
+    map_str_to_markdown(example_html_in_markdown)
+    captured = capsys.readouterr()
+    assert captured.out == ""
+
+def test_blockquote_tag_detected_as_html(capsys):
+    """Testing blockquote in a markdown isn't detected as html."""
+    example_html_in_markdown = """
+    > blockquote
+    """
+    map_str_to_markdown(example_html_in_markdown)
+    captured = capsys.readouterr()
+    assert captured.out == ""
+
+def test_headings_detected_as_html(capsys):
+    """Testing headings in a markdown isn't detected as html."""
+    example_html_in_markdown = """
+    # H1
+    ## H2
+    ### H3
+     """
+    map_str_to_markdown(example_html_in_markdown)
+    captured = capsys.readouterr()
+    assert captured.out == ""
+
+def test_bold_text_is_detected_as_html(capsys):
+    """Testing bold text in a markdown isn't detected as html."""
+    example_html_in_markdown = """
+    **bold text**
+    """
+    map_str_to_markdown(example_html_in_markdown)
+    captured = capsys.readouterr()
+    assert captured.out == ""
+
+def test_none_tag_detected_as_html(capsys):
+    """Testing variations of greater than and less than signs, don't get identified as html"""
+    example_html_in_markdown = """
+    # This is some example markdown without any html
+    but does contain these < > and these >< and these > < and this <> 
+    """
+    map_str_to_markdown(example_html_in_markdown)
+    captured = capsys.readouterr()
+    assert captured.out == ""
+
+def test_algebraic_expressions_with_spaces__is_detected_as_html(capsys):
     """Testing algebraic expressions that have spaces between the 
     greater than and less than symbols don't get identified as html"""
     example_html_in_markdown = """
@@ -421,7 +466,7 @@ def test_algebraic_expressions_with_spaces_detected_in_markdown(capsys):
     captured = capsys.readouterr()
     assert captured.out == ""
 
-def test_algebraic_expressions_without_spaces_detected_in_markdown(capsys):
+def test_algebraic_expressions_without_spaces_is_detected_as_html(capsys):
     """Testing algebraic expressions get identified as html even though
     they cleary aren't"""
     example_html_in_markdown = """
@@ -434,7 +479,7 @@ def test_algebraic_expressions_without_spaces_detected_in_markdown(capsys):
 def test_no_html_detected_in_markdown(capsys):
     """Testing that no html is detected in a text only markdown"""
     example_html_in_markdown = """
-    # This is some example markdown without any html
+    html is Hypertext Markup Language. And it includes tags for defining a label, paragraph and bold text.
     """
     map_str_to_markdown(example_html_in_markdown)
     captured = capsys.readouterr()
