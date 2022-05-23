@@ -7,6 +7,8 @@ from csvcubedmodels.rdf.resource import (
     NewResource,
     map_str_to_en_literal,
     map_resource_to_uri,
+    map_str_to_markdown,
+    is_html_present_in_markdown,
     Resource,
     ExistingResource,
     InversePredicate,
@@ -314,6 +316,161 @@ def test_arbitrary_rdf_triple_serialisation():
         URIRef("http://some-entity-uri"),
     ) in graph
 
+def test_markdown_datatype():
+    """testing to see"""
+
+    class A(NewResource):
+        p: Annotated[
+            str,
+            Triple(
+                URIRef("http://original-uri"),
+                PropertyStatus.recommended,
+                map_str_to_markdown,
+            ),
+        ]
+    a = A("http://some-a-uri")
+    a.p = "Hello, World"
+
+    graph = a.to_graph(Graph())
+
+    assert len(graph) == 2
+    assert (
+        URIRef("http://some-a-uri"),
+        URIRef("http://original-uri"),
+        Literal("Hello, World", datatype="https://www.w3.org/ns/iana/media-types/text/markdown#Resource"),
+    ) in graph
+
+    assert (
+        URIRef("http://some-a-uri"),
+        RDF.type,
+        RDFS.Resource,
+    ) in graph
+
+def test_italic_detected_as_markdown():
+    """Testing italicized text in a markdown isn't interepted as html."""
+    example_html_in_markdown = """
+    *italicized text*
+    """
+    test_html_is_present = is_html_present_in_markdown(example_html_in_markdown)
+    assert test_html_is_present == False
+
+def test_link_detected_as_markdown():
+    """Testing a link in a markdown isn't interepted as html."""
+    example_html_in_markdown = """
+    [title](https://www.example.com)
+    """
+    test_html_is_present = is_html_present_in_markdown(example_html_in_markdown)
+    assert test_html_is_present == False
+
+def test_horizontal_rule_detected_as_markdown():
+    """Testing the Horizontal Rule in a markdown isn't interepted as html."""
+    example_html_in_markdown = """
+    -----------
+    """
+    test_html_is_present = is_html_present_in_markdown(example_html_in_markdown)
+    assert test_html_is_present == False
+
+def test_code_detected_as_markdown():
+    """Testing code in a markdown isn't interepted as html."""
+    example_html_in_markdown = """
+    ```x = 3
+    y = 4
+    x + y```
+    """
+    test_html_is_present = is_html_present_in_markdown(example_html_in_markdown)
+    assert test_html_is_present == False
+
+def test_unordered_list_detected_as_markdown():
+    """Testing unordered list in a markdown isn't interepted as html."""
+    example_html_in_markdown = """
+    - First item
+    - Second item
+    - Third item
+    """
+    test_html_is_present = is_html_present_in_markdown(example_html_in_markdown)
+    assert test_html_is_present == False
+
+def test_ordered_list_detected_as_markdown():
+    """Testing ordered list in a markdown isn't interepted as html."""
+    example_html_in_markdown = """
+    1. First item
+    2. Second item
+    3. Third item
+    """
+    test_html_is_present = is_html_present_in_markdown(example_html_in_markdown)
+    assert test_html_is_present == False
+
+def test_image_detected_as_markdown():
+    """Testing image in a markdown isn't interepted as html."""
+    example_html_in_markdown = """
+    ![alt text](image.jpg)
+    """
+    test_html_is_present = is_html_present_in_markdown(example_html_in_markdown)
+    assert test_html_is_present == False
+
+def test_blockquote_tag_detected_as_markdown():
+    """Testing blockquote in a markdown isn't interepted as html."""
+    example_html_in_markdown = """
+    > blockquote
+    """
+    test_html_is_present = is_html_present_in_markdown(example_html_in_markdown)
+    assert test_html_is_present == False
+
+def test_headings_detected_as_markdown():
+    """Testing headings in a markdown isn't interepted as html."""
+    example_html_in_markdown = """
+    # H1
+    ## H2
+    ### H3
+     """
+    test_html_is_present = is_html_present_in_markdown(example_html_in_markdown)
+    assert test_html_is_present == False
+
+def test_bold_text_is_detected_as_markdown():
+    """Testing bold text in a markdown isn't interepted as html."""
+    example_html_in_markdown = """
+    **bold text**
+    """
+    test_html_is_present = is_html_present_in_markdown(example_html_in_markdown)
+    assert test_html_is_present == False
+
+def test_none_tag_detected_as_markdown():
+    """Testing variations of greater than and less than signs, don't get identified as html"""
+    example_html_in_markdown = """
+    # This is some example markdown without any html
+    but does contain these < > and these >< and these > < and this <> 
+    """
+    test_html_is_present = is_html_present_in_markdown(example_html_in_markdown)
+    assert test_html_is_present == False
+
+def test_algebraic_expressions_with_spaces__is_detected_as_markdown():
+    """Testing algebraic expressions that have spaces between the 
+    greater than and less than symbols don't get identified as html"""
+    example_html_in_markdown = """
+    x > y,
+    x < y,
+    x < z < y,
+    x > y > z
+    """
+    test_html_is_present = is_html_present_in_markdown(example_html_in_markdown)
+    assert test_html_is_present == False
+
+def test_algebraic_expressions_without_spaces_is_detected_as_markdown():
+    """Testing algebraic expressions get identified as html even though
+    they cleary aren't (including this test as a demonstration - not as desired behaviour)."""
+    example_html_in_markdown = """
+    x<z<y , x>y>z
+    """
+    test_html_is_present = is_html_present_in_markdown(example_html_in_markdown)
+    assert test_html_is_present == True
+
+def test_no_html_detected_in_markdown():
+    """Testing that no html is detected in a text only markdown"""
+    example_html_in_markdown = """
+    html is Hypertext Markup Language. And it includes tags for defining a label, paragraph and bold text.
+    """
+    test_html_is_present = is_html_present_in_markdown(example_html_in_markdown)
+    assert test_html_is_present == False
 
 if __name__ == "__main__":
     pytest.main()

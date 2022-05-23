@@ -12,6 +12,7 @@ from .resource import (
     NewMetadataResource,
     map_str_to_en_literal,
     map_resource_to_uri,
+    map_str_to_markdown,
     Resource as RdfResource,
 )
 from csvcubedmodels.rdf.namespaces import DCAT, DCTERMS, XSD, PROV, ODRL2, FOAF
@@ -30,7 +31,7 @@ class Resource(NewMetadataResource):
     ]
     description: Ann[
         Optional[str],
-        Triple(DCTERMS.description, PropertyStatus.recommended, map_str_to_en_literal),
+        Triple(DCTERMS.description, PropertyStatus.recommended, map_str_to_markdown),
     ]
     title: Ann[
         str, Triple(DCTERMS.title, PropertyStatus.recommended, map_str_to_en_literal)
@@ -130,7 +131,7 @@ class CatalogRecord(NewMetadataResource):
     ]
     description: Ann[
         Optional[str],
-        Triple(DCTERMS.description, PropertyStatus.recommended, map_str_to_en_literal),
+        Triple(DCTERMS.description, PropertyStatus.recommended, map_str_to_markdown),
     ]
     issued: Ann[datetime, Triple(DCTERMS.issued, PropertyStatus.mandatory, Literal)]
     modified: Ann[

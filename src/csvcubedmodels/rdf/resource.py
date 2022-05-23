@@ -4,6 +4,7 @@ Resources
 """
 from abc import ABC
 from collections.abc import Iterable
+import logging
 from typing import (
     Annotated,
     List,
@@ -21,11 +22,14 @@ from typing import (
 import rdflib
 from rdflib import URIRef, Graph
 from rdflib.term import Literal, Identifier
+from html.parser import HTMLParser
 
 from .datatypes import MARKDOWN
 from .triple import AbstractTriple, Triple, PropertyStatus
 from csvcubedmodels.rdf.namespaces import RDF, RDFS
 
+
+logger = logging.getLogger(__name__)
 
 class RdfResource(ABC):
     uri: URIRef
@@ -198,9 +202,31 @@ def map_resource_to_uri(entity: RdfResource) -> URIRef:
 def map_to_literal_with_datatype(datatype: URIRef) -> Callable[[Any], Literal]:
     return lambda val: Literal(val, datatype=datatype)
 
-
 def map_str_to_markdown(s: str) -> Literal:
-    return Literal(s, MARKDOWN)
+    html_in_markdown = is_html_present_in_markdown(s)
+
+    if html_in_markdown:
+        logger.warning("Markdown contains HTML")
+
+    return map_to_literal_with_datatype(MARKDOWN)(s)
+
+def is_html_present_in_markdown(s:str)->bool:
+    class ContainsHtmlParser(HTMLParser):
+        contains_html: bool
+
+        def __init__(self):
+            HTMLParser.__init__(self)
+            self.contains_html = False
+
+        def handle_starttag(self, tag, attrs):
+            self.contains_html = True
+
+        def handle_endtag(self, tag):
+            self.contains_html = True
+
+    parser = ContainsHtmlParser()
+    parser.feed(s)
+    return parser.contains_html
 
 
 class NewResourceWithLabel(NewResource, ABC):
