@@ -226,10 +226,7 @@ def is_html_present_in_markdown(s:str)->bool:
 
     parser = ContainsHtmlParser()
     parser.feed(s)
-    if parser.contains_html:
-        return True
-    else:
-        return False
+    return parser.contains_html
 
 
 class NewResourceWithLabel(NewResource, ABC):
