@@ -5,7 +5,6 @@ Resources
 from abc import ABC
 from collections.abc import Iterable
 import logging
-import sys
 from typing import (
     Annotated,
     List,
@@ -203,7 +202,15 @@ def map_resource_to_uri(entity: RdfResource) -> URIRef:
 def map_to_literal_with_datatype(datatype: URIRef) -> Callable[[Any], Literal]:
     return lambda val: Literal(val, datatype=datatype)
 
-def map_str_to_markdown(s: str, log_html_warning: bool = True) -> Literal:
+def map_str_to_markdown(s: str) -> Literal:
+    html_in_markdown = is_html_present_in_markdown(s)
+
+    if html_in_markdown:
+        logger.warning("Markdown contains HTML")
+
+    return map_to_literal_with_datatype(MARKDOWN)(s)
+
+def is_html_present_in_markdown(s:str)->bool:
     class ContainsHtmlParser(HTMLParser):
         contains_html: bool
 
@@ -219,12 +226,10 @@ def map_str_to_markdown(s: str, log_html_warning: bool = True) -> Literal:
 
     parser = ContainsHtmlParser()
     parser.feed(s)
-    if parser.contains_html == True:
-        handler = logging.StreamHandler(sys.stdout)
-        handler.setLevel(logging.WARNING)
-        logger.addHandler(handler)
-        logger.warning("Markdown contains HTML")
-    return map_to_literal_with_datatype(MARKDOWN)(s)
+    if parser.contains_html:
+        return True
+    else:
+        return False
 
 
 class NewResourceWithLabel(NewResource, ABC):
