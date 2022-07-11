@@ -59,9 +59,9 @@ pipeline {
             }
         }
         stage('Set dev version') {
-            // when {
-            //     branch 'main'
-            // }
+            when {
+                branch 'main'
+            }
             steps {
                 // This runs when we're not building a release or release candidate
                 // It sets the version of the project to something containing the decimalised version of the
@@ -80,9 +80,9 @@ pipeline {
             }
         }
         stage('Publish to Test-pypi') {
-            // when {
-            //     branch 'main'
-            // }
+            when {
+                branch 'main'
+            }
             steps {
                 script {
                     sh "twine check dist/csvcubed_models*.whl"
