@@ -80,9 +80,9 @@ pipeline {
             }
         }
         stage('Publish to Test-pypi') {
-            when {
-                branch 'main'
-            }
+            // when {
+            //     branch 'main'
+            // }
             steps {
                 script {
                     sh "twine check dist/csvcubed_models*.whl"
