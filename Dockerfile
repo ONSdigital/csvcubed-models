@@ -1,4 +1,4 @@
-FROM gsscogs/pythonversiontesting:v1.0.1
+FROM gsscogs/pythonversiontesting:v1.0.3
 
 ARG VENV_PATH=/csvcubed-models-venv
 ARG VENV_PIP=${VENV_PATH}/bin/pip
