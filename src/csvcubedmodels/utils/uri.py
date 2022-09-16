@@ -48,3 +48,5 @@ def get_data_type_uri_from_str(data_type: str) -> str:
         return data_type
     else:
         return str(rdflib.XSD[data_type])
+
+url = "http://example.com"
