@@ -325,3 +325,5 @@ try:
     a[5]
 except KeyError:
     raise  # Noncompliant
+
+url = "http://example.com"
