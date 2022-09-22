@@ -319,3 +319,9 @@ def replace_with_json_serialisable_types(val: Any) -> Any:
         return val.__name__
 
     return val
+
+a = {}
+try:
+    a[5]
+except KeyError:
+    raise  # Noncompliant
