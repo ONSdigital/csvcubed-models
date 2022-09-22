@@ -48,9 +48,3 @@ def get_data_type_uri_from_str(data_type: str) -> str:
         return data_type
     else:
         return str(rdflib.XSD[data_type])
-
-target = -5
-num = 3
-
-target =- num  # Noncompliant; target = -3. Is that really what's meant?
-target =+ num # Noncompliant; target = 3
