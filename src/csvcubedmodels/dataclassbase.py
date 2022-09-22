@@ -326,4 +326,4 @@ try:
 except KeyError:
     raise  # Noncompliant
 
-url = "http://example.com"
+url = "http://example.com/hello"
