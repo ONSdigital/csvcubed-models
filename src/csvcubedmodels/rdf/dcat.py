@@ -114,10 +114,6 @@ class Dataset(Resource):
             lambda l: Literal(l, XSD.duration),
         ),
     ]
-    """https://github.com/RDFLib/rdflib/pull/808"""
-    was_generated_by: Ann[
-        str, Triple(PROV.wasGeneratedBy, PropertyStatus.optional, URIRef)
-    ]
 
     def __init__(self, uri: str):
         Resource.__init__(self, uri)
