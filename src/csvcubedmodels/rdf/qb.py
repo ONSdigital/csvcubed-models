@@ -243,7 +243,7 @@ class DataStructureDefinition(ComponentSet):
     dataset"""
 
     sliceKey: Annotated[
-        Resource[SliceKey],
+        Set[Resource[SliceKey]],
         Triple(QB.sliceKey, PropertyStatus.recommended, map_resource_to_uri),
     ]
     """slice key - indicates a slice key which is used for slices in this dataset"""
@@ -252,6 +252,7 @@ class DataStructureDefinition(ComponentSet):
         ComponentSet.__init__(self, uri)
         self.rdf_types.add(QB.DataStructureDefinition)
         self.components = set()
+        self.sliceKey = set()
 
 
 class Observation(Attachable):
