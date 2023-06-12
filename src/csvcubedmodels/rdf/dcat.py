@@ -121,6 +121,7 @@ class Dataset(Resource):
 
 #The new class would be created here which also inherits the Resource class
 class Distribution(Resource):
+
     isDistributionOf: Ann[
         str, Triple(DCAT.isDistributionOf, PropertyStatus.recommended, URIRef)
     ]
@@ -134,7 +135,8 @@ class Distribution(Resource):
             lambda l: Literal(l, XSD.decimal),
         ),
     ]
-
+    license: Ann[str, Triple(DCTERMS.license, PropertyStatus.recommended, URIRef)]
+    publisher: Ann[str, Triple(DCTERMS.publisher, PropertyStatus.recommended, URIRef)]
     temporal: Ann[str, Triple(DCTERMS.temporal, PropertyStatus.recommended, URIRef)]
     temporal_resolution: Ann[
         str,
