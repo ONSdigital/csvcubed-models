@@ -119,6 +119,35 @@ class Dataset(Resource):
         Resource.__init__(self, uri)
         self.rdf_types.add(DCAT.Dataset)
 
+#The new class would be created here which also inherits the Resource class
+class Distribution(Resource):
+    isDistributionOf: Ann[
+        str, Triple(DCAT.isDistributionOf, PropertyStatus.recommended, URIRef)
+    ]
+
+    spatial: Ann[str, Triple(DCTERMS.spatial, PropertyStatus.recommended, URIRef)]
+    spatial_resolution_in_meters: Ann[
+        float,
+        Triple(
+            DCAT.spatialResolutionInMeters,
+            PropertyStatus.optional,
+            lambda l: Literal(l, XSD.decimal),
+        ),
+    ]
+
+    temporal: Ann[str, Triple(DCTERMS.temporal, PropertyStatus.recommended, URIRef)]
+    temporal_resolution: Ann[
+        str,
+        Triple(
+            DCAT.temporalResolution,
+            PropertyStatus.optional,
+            lambda l: Literal(l, XSD.duration),
+        ),
+    ]
+
+    def __init__(self, uri: str):
+        Resource.__init__(self, uri)
+        self.rdf_types.add(DCAT.Distribution)
 
 class CatalogRecord(NewMetadataResource):
 
@@ -162,6 +191,27 @@ class Catalog(Dataset):
 
     def __init__(self, uri: str):
         Dataset.__init__(self, uri)
+        self.rdf_types.add(DCAT.Catalog)
+
+        self.records = set()
+
+class Catalog(Distribution):
+
+    homepage: Ann[str, Triple(FOAF.homepage, PropertyStatus.recommended, URIRef)]
+    theme_taxonomy: Ann[
+        str, Triple(DCAT.themeTaxonomy, PropertyStatus.optional, URIRef)
+    ]
+    has_part: Ann[str, Triple(DCTERMS.hasPart, PropertyStatus.optional, URIRef)]
+    distrbution: Ann[str, Triple(DCAT.distribution, PropertyStatus.recommended, URIRef)]
+    service: Ann[str, Triple(DCAT.service, PropertyStatus.recommended, URIRef)]
+    catalog: Ann[str, Triple(DCAT.catalog, PropertyStatus.optional, URIRef)]
+    records: Ann[
+        Set[RdfResource[CatalogRecord]],
+        Triple(DCAT.record, PropertyStatus.recommended, map_resource_to_uri),
+    ]
+
+    def __init__(self, uri: str):
+        Distribution.__init__(self, uri)
         self.rdf_types.add(DCAT.Catalog)
 
         self.records = set()
