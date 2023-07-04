@@ -119,23 +119,19 @@ class Dataset(Resource):
         Resource.__init__(self, uri)
         self.rdf_types.add(DCAT.Dataset)
 
-#The new class would be created here which also inherits the Resource class
 class Distribution(Resource):
 
     isDistributionOf: Ann[
         str, Triple(DCAT.isDistributionOf, PropertyStatus.recommended, URIRef)
     ]
-    #these two will need changing probably
-    access_service: Ann[str, Triple(DCAT.accessService, PropertyStatus.mandatory, URIRef)]
-    access_url: Ann[str, Triple(DCAT.accessURL, PropertyStatus.mandatory, URIRef)]
 
-    byte_size: Ann[str, Triple(DCAT.byteSize, PropertyStatus.mandatory, Literal)]
+    access_service: Ann[str, Triple(DCAT.accessService, PropertyStatus.recommended, URIRef)]
+    access_url: Ann[str, Triple(DCAT.accessURL, PropertyStatus.recommended, URIRef)]
+    byte_size: Ann[float, Triple(DCAT.byteSize, PropertyStatus.recommended, lambda l: Literal(l, XSD.decimal))]
     compress_format: Ann[str, Triple(DCAT.compressFormat, PropertyStatus.recommended, URIRef)]
     download_url: Ann[str, Triple(DCAT.downloadURL, PropertyStatus.recommended, URIRef)]
     media_type: Ann[str, Triple(DCAT.mediaType, PropertyStatus.recommended, URIRef)]
-
-    #not sure about this
-    package_format: Ann[str, Triple(DCAT.packageFormat, PropertyStatus.recommended, URIRef)]
+    package_format: Ann[str, Triple(DCAT.packageFormat, PropertyStatus.optional, URIRef)]
 
     spatial: Ann[str, Triple(DCTERMS.spatial, PropertyStatus.recommended, URIRef)]
     spatial_resolution_in_meters: Ann[
@@ -157,18 +153,16 @@ class Distribution(Resource):
         ),
     ]
 
-    conforms_to: Ann[str, Triple(DCTERMS.conformsTo, PropertyStatus.recommended, URIRef)]
-    description: Ann[str, Triple(DCTERMS.description, PropertyStatus.recommended, Literal)]
-
-    #the formt keyword might be an issue
+    conforms_to: Ann[str, Triple(DCTERMS.conformsTo, PropertyStatus.optional, URIRef)]
+    description: Ann[str, Triple(DCTERMS.description, PropertyStatus.recommended, map_str_to_en_literal)]
     format: Ann[str, Triple(DCTERMS.format, PropertyStatus.recommended, URIRef)]
-    issued: Ann[str, Triple(DCTERMS.issued, PropertyStatus.recommended, URIRef)]
+    issued: Ann[datetime, Triple(DCTERMS.issued, PropertyStatus.recommended, Literal)]
     license: Ann[str, Triple(DCTERMS.license, PropertyStatus.recommended, URIRef)]
-    modified: Ann[str, Triple(DCTERMS.modified, PropertyStatus.recommended, URIRef)]
+    modified: Ann[datetime, Triple(DCTERMS.modified, PropertyStatus.recommended, Literal)]
     publisher: Ann[str, Triple(DCTERMS.publisher, PropertyStatus.recommended, URIRef)]
     rights: Ann[str, Triple(DCTERMS.rights, PropertyStatus.recommended, URIRef)]
     title: Ann[str, Triple(DCTERMS.title, PropertyStatus.mandatory, map_str_to_en_literal)]
-    has_policy: Ann[str, Triple(ODRL2.hasPolicy, PropertyStatus.mandatory, URIRef)]
+    has_policy: Ann[str, Triple(ODRL2.hasPolicy, PropertyStatus.recommended, URIRef)]
     
     def __init__(self, uri: str):
         Resource.__init__(self, uri)
@@ -216,27 +210,6 @@ class Catalog(Dataset):
 
     def __init__(self, uri: str):
         Dataset.__init__(self, uri)
-        self.rdf_types.add(DCAT.Catalog)
-
-        self.records = set()
-
-class Catalog(Distribution):
-
-    homepage: Ann[str, Triple(FOAF.homepage, PropertyStatus.recommended, URIRef)]
-    theme_taxonomy: Ann[
-        str, Triple(DCAT.themeTaxonomy, PropertyStatus.optional, URIRef)
-    ]
-    has_part: Ann[str, Triple(DCTERMS.hasPart, PropertyStatus.optional, URIRef)]
-    distrbution: Ann[str, Triple(DCAT.distribution, PropertyStatus.recommended, URIRef)]
-    service: Ann[str, Triple(DCAT.service, PropertyStatus.recommended, URIRef)]
-    catalog: Ann[str, Triple(DCAT.catalog, PropertyStatus.optional, URIRef)]
-    records: Ann[
-        Set[RdfResource[CatalogRecord]],
-        Triple(DCAT.record, PropertyStatus.recommended, map_resource_to_uri),
-    ]
-
-    def __init__(self, uri: str):
-        Distribution.__init__(self, uri)
         self.rdf_types.add(DCAT.Catalog)
 
         self.records = set()
