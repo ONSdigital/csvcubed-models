@@ -125,6 +125,17 @@ class Distribution(Resource):
     isDistributionOf: Ann[
         str, Triple(DCAT.isDistributionOf, PropertyStatus.recommended, URIRef)
     ]
+    #these two will need changing probably
+    access_service: Ann[str, Triple(DCAT.accessService, PropertyStatus.mandatory, URIRef)]
+    access_url: Ann[str, Triple(DCAT.accessURL, PropertyStatus.mandatory, URIRef)]
+
+    byte_size: Ann[str, Triple(DCAT.byteSize, PropertyStatus.mandatory, Literal)]
+    compress_format: Ann[str, Triple(DCAT.compressFormat, PropertyStatus.recommended, URIRef)]
+    download_url: Ann[str, Triple(DCAT.downloadURL, PropertyStatus.recommended, URIRef)]
+    media_type: Ann[str, Triple(DCAT.mediaType, PropertyStatus.recommended, URIRef)]
+
+    #not sure about this
+    package_format: Ann[str, Triple(DCAT.packageFormat, PropertyStatus.recommended, URIRef)]
 
     spatial: Ann[str, Triple(DCTERMS.spatial, PropertyStatus.recommended, URIRef)]
     spatial_resolution_in_meters: Ann[
@@ -135,8 +146,7 @@ class Distribution(Resource):
             lambda l: Literal(l, XSD.decimal),
         ),
     ]
-    license: Ann[str, Triple(DCTERMS.license, PropertyStatus.recommended, URIRef)]
-    publisher: Ann[str, Triple(DCTERMS.publisher, PropertyStatus.recommended, URIRef)]
+
     temporal: Ann[str, Triple(DCTERMS.temporal, PropertyStatus.recommended, URIRef)]
     temporal_resolution: Ann[
         str,
@@ -147,6 +157,19 @@ class Distribution(Resource):
         ),
     ]
 
+    conforms_to: Ann[str, Triple(DCTERMS.conformsTo, PropertyStatus.recommended, URIRef)]
+    description: Ann[str, Triple(DCTERMS.description, PropertyStatus.recommended, Literal)]
+
+    #the formt keyword might be an issue
+    format: Ann[str, Triple(DCTERMS.format, PropertyStatus.recommended, URIRef)]
+    issued: Ann[str, Triple(DCTERMS.issued, PropertyStatus.recommended, URIRef)]
+    license: Ann[str, Triple(DCTERMS.license, PropertyStatus.recommended, URIRef)]
+    modified: Ann[str, Triple(DCTERMS.modified, PropertyStatus.recommended, URIRef)]
+    publisher: Ann[str, Triple(DCTERMS.publisher, PropertyStatus.recommended, URIRef)]
+    rights: Ann[str, Triple(DCTERMS.rights, PropertyStatus.recommended, URIRef)]
+    title: Ann[str, Triple(DCTERMS.title, PropertyStatus.mandatory, map_str_to_en_literal)]
+    has_policy: Ann[str, Triple(ODRL2.hasPolicy, PropertyStatus.mandatory, URIRef)]
+    
     def __init__(self, uri: str):
         Resource.__init__(self, uri)
         self.rdf_types.add(DCAT.Distribution)
