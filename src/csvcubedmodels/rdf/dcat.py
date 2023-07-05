@@ -119,7 +119,7 @@ class Dataset(Resource):
         Resource.__init__(self, uri)
         self.rdf_types.add(DCAT.Dataset)
 
-class Distribution(Resource):
+class Distribution(Dataset):
 
     isDistributionOf: Ann[
         str, Triple(DCAT.isDistributionOf, PropertyStatus.recommended, URIRef)
