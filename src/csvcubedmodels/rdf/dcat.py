@@ -165,7 +165,7 @@ class Distribution(Dataset):
     has_policy: Ann[str, Triple(ODRL2.hasPolicy, PropertyStatus.recommended, URIRef)]
     
     def __init__(self, uri: str):
-        Resource.__init__(self, uri)
+        Dataset.__init__(self, uri)
         self.rdf_types.add(DCAT.Distribution)
 
 class CatalogRecord(NewMetadataResource):
