@@ -1,4 +1,4 @@
-name: Release csvcubed
+name: Release csvcubed-models
 on:
   release:
     types: [published]
