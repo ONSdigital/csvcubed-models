@@ -1,131 +1,145 @@
-name: Test csvcubed
+name: test csvcubed models
+
 on:
-  workflow_call:
-    inputs:
-      os:
-        required: true
-        type: string
-      python-version:
-        required: true
-        type: string
+  push:
+    branches:
+      - 'main'
+  create:
+    tag:
+  pull_request:
+    types:
 
 jobs:
-  test_in_environments:
-    runs-on: ${{ inputs.os }}
+  testing:
+    runs-on: ubuntu-latest
+    container:
+      image: gsscogs/pythonversiontesting
+    strategy:
+      matrix:
+        python-version: ["3.10"]
+
     steps:
-      - uses: actions/checkout@v3
+    - uses: actions/checkout@v3
+    - name: Set up Python ${{ matrix.python-version }}
+      uses: actions/setup-python@v3
+      with:
+        python-version: ${{ matrix.python-version }}
+
+    - name: Install all packages
+      run: |
+        poetry install
+
+    - name: Run pyright
+      run: poetry run pyright . --lib
+
+    - name: Run unittests
+      if: always()
+      run: poetry run pytest --junitxml=pytest_results_pmd.xml
+
+    - name: Upload unittests test results from xml file
+      if: always()
+      uses: actions/upload-artifact@v3
+      with:
+        name: unitests tests
+        path: pytest_results_pmd.xml
+
+    - name: Publish Unit Test Results
+      uses: EnricoMi/publish-unit-test-result-action@v1
+      if: always()
+      with:
+        files: "pytest_results_pmd.xml"
+
+    - name: Run behaviour tests
+      if: always()
+      run: poetry run behave tests/features --tags=-skip --junit
+
+    - name: Remove broken characters from xml test files
+    # By removing broken characters from the xml unit/behave test files, we can then publish the tests results stored 
+    # in those files in a user friendly way on github actions using 'EnricoMi/publish-unit-test-result-action@v1'.
+      if: always()
+      run: |
+        sed -i -e 's/[\x0A\x1B]//g' reports/TESTS-*.xml
+        
+    - name: Upload behave test results from xml files
+      if: always()
+      uses: actions/upload-artifact@v3
+      with:
+        name: behave tests
+        path: reports/*.xml
+
+    - name: Publish Behave Test Results
+      uses: EnricoMi/publish-unit-test-result-action@v1
+      if: always()
+      with:
+        check_name: "Behave Test Results"
+        files: 'reports/*.xml'
+
+  increment_version:
+    needs: [testing]
+    env:
+      GIT_REF: ${{ github.ref }}
+    if: ${{ (needs.testing.result=='success') && startsWith(github.ref, 'refs/tags/v') }}
+    # Step 1. Set up operating system
+    runs-on: ubuntu-latest
+    container:
+      image: gsscogs/pythonversiontesting
+    strategy:
+      matrix:
+        python-version: ["3.10"]
+    steps:
+      # Check-out repository so we can access its contents
+      - uses: actions/checkout@v2
         with:
           fetch-depth: 0
-
-      # Necessary for running csvlint inside the Windows VM.
-      - uses: ruby/setup-ruby@v1
-        if: inputs.os == 'windows-latest'
-        with:
-          ruby-version: '2.4'
-
-      - name: Install csvlint, csv2rdf and sparql-test-runner (Windows)
-        id: windows-install
-        if: inputs.os == 'windows-latest'
-
-        run: .\windows-testing-setup.ps1 -verbose
-        shell: pwsh
-
-      - uses: actions/setup-python@v4
-        id: install-python
-        with:
-          python-version: ${{ inputs.python-version }}
-
-      - uses: actions/setup-node@v3
-        with:
-          node-version: 16
-
-      - name: Install pyright
-        run: npm install -g pyright@1.1.302
-
-      - name: Install markdown spell-checker
-        run: npm install -g spellchecker-cli
-
-      - name: Test spelling in external docs
-        run: cd external-docs && bash spell-check.sh
-
-      - name: Install poetry
-        run: pip install poetry
-
-      - uses: actions/cache@v3
-        # Include pandas version in cache key for Ubuntu/Python 3.11
-        if: inputs.os == 'ubuntu-latest' && inputs.python-version == '3.11'
-        with:
-          path: |
-            ~/.cache/pypoetry/virtualenvs
-            C:\Users\runneradmin\AppData\Local\pypoetry\Cache\virtualenvs
-          key: ${{ inputs.os }}-${{ steps.install-python.outputs.python-version }}-poetry-${{ hashFiles('poetry.lock') }}-${{ inputs.pandas-version }}
-
-      - uses: actions/cache@v3
-        if: (inputs.os == 'ubuntu-latest' && inputs.python-version == '3.9') || inputs.os == 'windows-latest'
-        with:
-          path: |
-            ~/.cache/pypoetry/virtualenvs
-            C:\Users\runneradmin\AppData\Local\pypoetry\Cache\virtualenvs
-          key: ${{ inputs.os }}-${{ steps.install-python.outputs.python-version }}-poetry-${{ hashFiles('poetry.lock') }}-
-
-      - name: Install python packages
-        run: poetry install --sync
-
-      - name: Specify pandas version (Ubuntu & Python 3.11)
-        if: inputs.os == 'ubuntu-latest' && inputs.python-version == '3.11' && inputs.pandas-version != ''
-        run: poetry add ${{ inputs.pandas-version }}
-
-      - name: Run pyright
-        run: poetry run pyright . --lib
-
-      - name: Ensure ValidatedModel properties have validations provided
-        run: poetry run python tests/pref_improvement/pref_check.py
-
-      - name: Run unittests
-        run: poetry run pytest --junitxml=pytest_results.xml
-
-      - name: Run behaviour tests (Windows)
-        if: inputs.os == 'windows-latest'
+      - name: Update pyproject.toml version from latest tag
         run: |
-          $csv2rdfLocation = "${{ steps.windows-install.outputs.CSV2RDF_LOCATION }}"
-          $sparqlTestsDir = "${{ steps.windows-install.outputs.SPARQL_TESTS_LOCATION }}"
+          poetry version $(echo $GIT_REF | sed -e 's/^.*\/v\(.*\)/\1/')
+      - name: Tell git who we are
+        run: |
+          git config --global user.email "none@none.com"
+          git config --global user.name "Auto-version-incrementer"
+      - name: Commit auto-incrementer changes to existing tag
+        run: |
+         git config --global safe.directory '*' # To suppress  fatal: detected dubious ownership in repository at ...
+         git add pyproject.toml
+          git commit -m "Updating the release version in pyproject.toml"
+          git tag -f $(echo $GIT_REF | sed -e 's/^.*\/v\(.*\)/v\1/')
+      - name: Push tag changes back to origin
+        run: git push -f origin $(echo $GIT_REF | sed -e 's/^.*\/v\(.*\)/v\1/')
 
-          $env:NO_DOCKER="true"; $env:CSV2RDF="$csv2rdfLocation"; $env:SPARQL_TESTS_DIR="$sparqlTestsDir"; poetry run behave tests/behaviour --tags=-skip --junit --format progress
-        shell: pwsh
 
-      - name: Run behaviour tests (Ubuntu)
-        if: inputs.os == 'ubuntu-latest'
-        run: poetry run behave tests/behaviour --tags=-skip --junit --format progress
-
-      - name: Archive unit & behave test results from xml files
-        if: always()
-        uses: actions/upload-artifact@v3
-        with:
-          name: ${{ inputs.os }}-python${{ inputs.python-version }}-${{ inputs.pandas-version }} behave test results
-          path: |
-            pytest_results.xml
-            reports/*.xml
-
-  publish_test_results:
-    needs: [test_in_environments]
+  release:
+    if: ${{ (needs.testing.result=='success') && startsWith(github.ref, 'refs/tags/v') }}
+    needs: [increment_version]
     runs-on: ubuntu-latest
-    if: always()
     steps:
-      - uses: actions/download-artifact@v3
-        with:
-          name: ${{ inputs.os }}-python${{ inputs.python-version }}-${{ inputs.pandas-version }} behave test results
 
-      - name: Remove broken characters from xml test files
-        # By removing broken characters from the xml unit/behave test files, we can then publish the tests results stored
-        # in those files in a user friendly way on github actions using 'EnricoMi/publish-unit-test-result-action@v1'.
-        if: always()
-        run: sed -i -e "s/[\\x0A\\x1B]//g" reports/TESTS-*.xml
+      - name: Checkout
+        uses: actions/checkout@v2
 
-      - name: Publish Unit & Behave Test Results
-        if: always()
-        uses: EnricoMi/publish-unit-test-result-action@v2
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v1
+      
+      - name: Login to DockerHub
+        uses: docker/login-action@v1 
         with:
-          check_name: ${{ inputs.os }}-python${{ inputs.python-version }}-${{ inputs.pandas-version }} test results
-          junit_files: |
-            reports/*.xml
-            pytest_results.xml
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: get_tag_version
+        id: get_version
+        uses: battila7/get-version-action@v2
+
+      - name: Build pmdutils:dev
+        uses: docker/build-push-action@v2
+        id: docker_build_dev
+        with:
+          context: .
+          file: deploydocker/Dockerfile
+          push: true
+          build-args: dev=true
+          tags: |
+            gsscogs/pmdutils:latest
+            gsscogs/pmdutils:${{ steps.get_version.outputs.version-without-v }}
+      - name: Develop Image digest
+        run: echo ${{ steps.docker_build_dev.outputs.digest }}
