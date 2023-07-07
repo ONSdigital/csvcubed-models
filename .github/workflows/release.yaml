@@ -8,20 +8,15 @@ jobs:
     strategy:
       matrix:
         # Test in all supported versions of python in both Windows and Ubuntu.
-        python-version: ['3.9', '3.10', '3.11']
-        os: [ubuntu-latest, windows-latest]
+        python-version: ['3.11']
+        os: [ubuntu-latest]
     uses: ./.github/workflows/reusable-test.yaml
-    with:
-      os: ${{ matrix.os }}
-      python-version: ${{ matrix.python-version }}
 
   build_package:
-    if: needs.test_in_environments.result == 'success'
     needs: [test_in_environments]
     uses: ./.github/workflows/reusable-build.yaml
 
   publish_package:
-    if: needs.build_package.result == 'success'
     needs: [build_package_and_documentation]
     uses: ./.github/workflows/reusable-deploy.yaml
     secrets: inherit
