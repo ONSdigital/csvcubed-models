@@ -1,0 +1,22 @@
+name: Release csvcubed-models
+on:
+  release:
+    types: [published]
+
+jobs:
+  test_in_environments:
+    strategy:
+      matrix:
+        # Test in all supported versions of python in both Windows and Ubuntu.
+        python-version: ['3.11']
+        os: [ubuntu-latest]
+    uses: ./.github/workflows/reusable-test.yaml
+
+  build_package:
+    needs: [test_in_environments]
+    uses: ./.github/workflows/reusable-build.yaml
+
+  publish_package:
+    needs: [build_package_and_documentation]
+    uses: ./.github/workflows/reusable-deploy.yaml
+    secrets: inherit

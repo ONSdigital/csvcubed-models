@@ -128,7 +128,8 @@ class Distribution(NewMetadataResource):
 
     conforms_to: Ann[str, Triple(DCTERMS.conformsTo, PropertyStatus.optional, URIRef)]
     description: Ann[str, Triple(DCTERMS.description, PropertyStatus.recommended, map_str_to_en_literal)]
-    format: Ann[str, Triple(DCTERMS.format, PropertyStatus.recommended, URIRef)]
+    #Dies to a method import issue had to change to this form
+    format: Ann[str, Triple(DCTERMS['format'], PropertyStatus.recommended, URIRef)]
     issued: Ann[datetime, Triple(DCTERMS.issued, PropertyStatus.recommended, Literal)]
     license: Ann[str, Triple(DCTERMS.license, PropertyStatus.recommended, URIRef)]
     modified: Ann[datetime, Triple(DCTERMS.modified, PropertyStatus.recommended, Literal)]
