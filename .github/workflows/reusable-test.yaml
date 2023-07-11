@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 name: Test csvcubed
 on:
   workflow_call:
@@ -129,3 +130,101 @@ jobs:
           junit_files: |
             reports/*.xml
             pytest_results.xml
+=======
+name: test csvcubed models
+
+on:
+  push:
+    branches:
+      - 'main'
+  create:
+    tag:
+  pull_request:
+    types:
+
+jobs:
+  testing:
+    runs-on: ubuntu-latest
+    container:
+      image: gsscogs/pythonversiontesting
+    strategy:
+      matrix:
+        python-version: ["3.11"]
+
+    steps:
+    - uses: actions/checkout@v3
+    - name: Set up Python ${{ matrix.python-version }}
+      uses: actions/setup-python@v3
+      with:
+        python-version: ${{ matrix.python-version }}
+
+    - name: Install all packages
+      run: poetry install
+
+    - name: Run pyright
+      run: poetry run pyright . --lib
+
+    - name: Run unittests
+      if: always()
+      run: poetry run pytest --junitxml=pytest_results_pmd.xml
+
+    - name: Upload unittests test results from xml file
+      if: always()
+      uses: actions/upload-artifact@v3
+      with:
+        name: unitests tests
+        path: pytest_results_pmd.xml
+
+    - name: Publish Unit Test Results
+      uses: EnricoMi/publish-unit-test-result-action@v1
+      if: always()
+      with:
+        files: "pytest_results_pmd.xml"
+
+  increment_version:
+    needs: [testing]
+    env:
+      GIT_REF: ${{ github.ref }}
+    if: ${{ (needs.testing.result=='success') && startsWith(github.ref, 'refs/tags/v') }}
+    # Step 1. Set up operating system
+    runs-on: ubuntu-latest
+    container:
+      image: gsscogs/pythonversiontesting
+    strategy:
+      matrix:
+        python-version: ["3.10"]
+    steps:
+      # Check-out repository so we can access its contents
+      - uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+      - name: Update pyproject.toml version from latest tag
+        run: |
+          poetry version $(echo $GIT_REF | sed -e 's/^.*\/v\(.*\)/\1/')
+      - name: Tell git who we are
+        run: |
+          git config --global user.email "none@none.com"
+          git config --global user.name "Auto-version-incrementer"
+      - name: Commit auto-incrementer changes to existing tag
+        run: |
+         git config --global safe.directory '*' # To suppress  fatal: detected dubious ownership in repository at ...
+         git add pyproject.toml
+          git commit -m "Updating the release version in pyproject.toml"
+          git tag -f $(echo $GIT_REF | sed -e 's/^.*\/v\(.*\)/v\1/')
+      - name: Push tag changes back to origin
+        run: git push -f origin $(echo $GIT_REF | sed -e 's/^.*\/v\(.*\)/v\1/')
+
+
+  release:
+    if: ${{ (needs.testing.result=='success') && startsWith(github.ref, 'refs/tags/v') }}
+    needs: [increment_version]
+    runs-on: ubuntu-latest
+    steps:
+
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: get_tag_version
+        id: get_version
+        uses: battila7/get-version-action@v2
+>>>>>>> origin/main
