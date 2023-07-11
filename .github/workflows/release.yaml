@@ -1,8 +1,4 @@
-<<<<<<< HEAD
-name: Release csvcubed
-=======
 name: Release csvcubed-models
->>>>>>> origin/main
 on:
   release:
     types: [published]
@@ -12,35 +8,6 @@ jobs:
     strategy:
       matrix:
         # Test in all supported versions of python in both Windows and Ubuntu.
-<<<<<<< HEAD
-        python-version: ['3.9', '3.10', '3.11']
-        os: [ubuntu-latest, windows-latest]
-        #including a specific test case for testing older pandas version
-        include:
-          - os: ubuntu-latest
-            python-version: 3.11
-    uses: ./.github/workflows/reusable-test.yaml
-    with:
-      os: ${{ matrix.os }}
-      python-version: ${{ matrix.python-version }}
-
-  build_package_and_documentation:
-    if: needs.test_in_environments.result == 'success'
-    needs: [test_in_environments]
-    uses: ./.github/workflows/reusable-build.yaml
-
-  publish_package_and_documentation:
-    if: needs.build_package_and_documentation.result == 'success'
-    needs: [build_package_and_documentation]
-    uses: ./.github/workflows/reusable-deploy.yaml
-    secrets: inherit
-
-  Trigger_gss-utils_workflow:
-    if: needs.publish_package_and_documentation.result == 'success'
-    needs: [publish_package_and_documentation]
-    uses: ./.github/workflows/reusable-release_gssutils.yaml
-    secrets: inherit
-=======
         python-version: ['3.11']
         os: [ubuntu-latest]
     uses: ./.github/workflows/reusable-test.yaml
@@ -53,4 +20,3 @@ jobs:
     needs: [build_package_and_documentation]
     uses: ./.github/workflows/reusable-deploy.yaml
     secrets: inherit
->>>>>>> origin/main
