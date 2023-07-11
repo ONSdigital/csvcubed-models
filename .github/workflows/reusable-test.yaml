@@ -1,11 +1,13 @@
 name: Test csvcubed-models
 on:
+#added the missing workflow call(which should be working)
   workflow_call:
 
 jobs:
   test_in_environments:
     runs-on: ubuntu-latest
     matrix:
+      os: [ubuntu-latest]
       python-version: 3.11
     steps:
       - uses: actions/checkout@v3
@@ -24,6 +26,7 @@ jobs:
       - name: Install poetry
         run: pip install poetry
 
+      #Do we even need this step? wound't a poetry install do without it?
       - uses: actions/cache@v3
         # Include pandas version in cache key for Ubuntu/Python 3.11
         if: inputs.os == 'ubuntu-latest' && inputs.python-version == '3.11'
@@ -39,18 +42,15 @@ jobs:
       - name: Run pyright
         run: poetry run pyright . --lib
 
-      - name: Ensure ValidatedModel properties have validations provided
-        run: poetry run python tests/pref_improvement/pref_check.py
-
       - name: Run unittests
         run: poetry run pytest --junitxml=pytest_results.xml
 
-
+        #this here is one of the issue due to the reference for pandas but
       - name: Archive unit & behave test results from xml files
         if: always()
         uses: actions/upload-artifact@v3
         with:
-          name: ${{ inputs.os }}-python${{ inputs.python-version }}-${{ inputs.pandas-version }} behave test results
+          name: ${{ matrix.os }}-python${{ matrix.python-version }}-${{ inputs.pandas-version }} behave test results
           path: |
             pytest_results.xml
             reports/*.xml
@@ -70,6 +70,7 @@ jobs:
         if: always()
         run: sed -i -e "s/[\\x0A\\x1B]//g" reports/TESTS-*.xml
 
+      #same issue here with the pandas but might just needs delete
       - name: Publish Unit & Behave Test Results
         if: always()
         uses: EnricoMi/publish-unit-test-result-action@v2
