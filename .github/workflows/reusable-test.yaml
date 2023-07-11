@@ -1,52 +1,25 @@
 name: Test csvcubed-models
 on:
   workflow_call:
-    inputs:
-      os:
-        required: true
-        type: string
-      python-version:
-        required: true
-        type: string
 
 jobs:
   test_in_environments:
-    runs-on: ${{ inputs.os }}
+    runs-on: ubuntu-latest
+    matrix:
+      python-version: 3.11
     steps:
       - uses: actions/checkout@v3
         with:
           fetch-depth: 0
 
-      # Necessary for running csvlint inside the Windows VM.
-      - uses: ruby/setup-ruby@v1
-        if: inputs.os == 'windows-latest'
-        with:
-          ruby-version: '2.4'
-
-      - name: Install csvlint, csv2rdf and sparql-test-runner (Windows)
-        id: windows-install
-        if: inputs.os == 'windows-latest'
-
-        run: .\windows-testing-setup.ps1 -verbose
-        shell: pwsh
-
       - uses: actions/setup-python@v4
         id: install-python
         with:
-          python-version: ${{ inputs.python-version }}
+          python-version: ${{ matrix.python-version }}
 
       - uses: actions/setup-node@v3
         with:
           node-version: 16
-
-      - name: Install pyright
-        run: npm install -g pyright@1.1.302
-
-      - name: Install markdown spell-checker
-        run: npm install -g spellchecker-cli
-
-      - name: Test spelling in external docs
-        run: cd external-docs && bash spell-check.sh
 
       - name: Install poetry
         run: pip install poetry
@@ -60,20 +33,8 @@ jobs:
             C:\Users\runneradmin\AppData\Local\pypoetry\Cache\virtualenvs
           key: ${{ inputs.os }}-${{ steps.install-python.outputs.python-version }}-poetry-${{ hashFiles('poetry.lock') }}-${{ inputs.pandas-version }}
 
-      - uses: actions/cache@v3
-        if: (inputs.os == 'ubuntu-latest' && inputs.python-version == '3.9') || inputs.os == 'windows-latest'
-        with:
-          path: |
-            ~/.cache/pypoetry/virtualenvs
-            C:\Users\runneradmin\AppData\Local\pypoetry\Cache\virtualenvs
-          key: ${{ inputs.os }}-${{ steps.install-python.outputs.python-version }}-poetry-${{ hashFiles('poetry.lock') }}-
-
       - name: Install python packages
         run: poetry install --sync
-
-      - name: Specify pandas version (Ubuntu & Python 3.11)
-        if: inputs.os == 'ubuntu-latest' && inputs.python-version == '3.11' && inputs.pandas-version != ''
-        run: poetry add ${{ inputs.pandas-version }}
 
       - name: Run pyright
         run: poetry run pyright . --lib
@@ -84,18 +45,6 @@ jobs:
       - name: Run unittests
         run: poetry run pytest --junitxml=pytest_results.xml
 
-      - name: Run behaviour tests (Windows)
-        if: inputs.os == 'windows-latest'
-        run: |
-          $csv2rdfLocation = "${{ steps.windows-install.outputs.CSV2RDF_LOCATION }}"
-          $sparqlTestsDir = "${{ steps.windows-install.outputs.SPARQL_TESTS_LOCATION }}"
-
-          $env:NO_DOCKER="true"; $env:CSV2RDF="$csv2rdfLocation"; $env:SPARQL_TESTS_DIR="$sparqlTestsDir"; poetry run behave tests/behaviour --tags=-skip --junit --format progress
-        shell: pwsh
-
-      - name: Run behaviour tests (Ubuntu)
-        if: inputs.os == 'ubuntu-latest'
-        run: poetry run behave tests/behaviour --tags=-skip --junit --format progress
 
       - name: Archive unit & behave test results from xml files
         if: always()
@@ -129,3 +78,4 @@ jobs:
           junit_files: |
             reports/*.xml
             pytest_results.xml
+            
