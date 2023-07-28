@@ -1,10 +1,9 @@
-
-name: Build csvcubed-models
+name: Build csvcubed-models whl and documentation
 on:
   workflow_call:
 
 jobs:
-  build_package:
+  build_package_and_documentation:
     runs-on: ubuntu-latest
     container:
       image: gsscogs/pythonversiontesting
