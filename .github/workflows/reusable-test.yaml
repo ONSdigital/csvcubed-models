@@ -62,7 +62,7 @@ jobs:
           key: ${{ inputs.os }}-${{ steps.install-python.outputs.python-version }}-poetry-${{ hashFiles('poetry.lock') }}-
 
       - name: Install python packages
-        run: poetry install --sync
+        run: poetry install
 
       - name: Run pyright
         run: poetry run pyright . --lib
