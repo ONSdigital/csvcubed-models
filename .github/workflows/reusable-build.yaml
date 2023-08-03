@@ -28,3 +28,18 @@ jobs:
 
       - name: Build whl package
         run: poetry build
+
+      - uses: actions/cache@v3
+        with:
+          path: ~/.cache/pypoetry/virtualenvs
+          key: ${{ inputs.os }}-${{ inputs.python-version }}-poetry-${{ hashFiles('poetry.lock') }}
+
+      - name: Install python packages
+        run: poetry install
+
+      - name: Archive package and documentation
+        uses: actions/upload-artifact@v3
+        with:
+          name: package-and-documentation
+          path: |
+            **/build/html/**/*
