@@ -42,4 +42,4 @@ jobs:
         with:
           name: package-and-documentation
           path: |
-            **/build/html/**/*
+            **/dist/*.whl
