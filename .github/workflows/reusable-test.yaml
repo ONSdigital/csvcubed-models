@@ -86,7 +86,7 @@ jobs:
     steps:
       - uses: actions/download-artifact@v3
         with:
-          name: ${{ inputs.os }}-python${{ inputs.python-version }} test results
+          name: ${{ inputs.os }}-python${{ inputs.python-version }} behave test results
 
       - name: Remove broken characters from xml test files
         # By removing broken characters from the xml unit test files, we can then publish the tests results stored
