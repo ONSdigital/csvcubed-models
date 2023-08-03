@@ -17,19 +17,6 @@ jobs:
         with:
           fetch-depth: 0
 
-      # Necessary for running csvlint inside the Windows VM.
-      - uses: ruby/setup-ruby@v1
-        if: inputs.os == 'windows-latest'
-        with:
-          ruby-version: '2.4'
-
-      - name: Install csvlint, csv2rdf and sparql-test-runner (Windows)
-        id: windows-install
-        if: inputs.os == 'windows-latest'
-
-        run: .\windows-testing-setup.ps1 -verbose
-        shell: pwsh
-
       - uses: actions/setup-python@v4
         id: install-python
         with:
