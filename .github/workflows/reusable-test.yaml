@@ -70,6 +70,10 @@ jobs:
     runs-on: ubuntu-latest
     if: always()
     steps:
+      - uses: actions/download-artifact@v3
+          with:
+          name: ${{ inputs.os }}-python${{ inputs.python-version }} test results
+                
       - name: Publish Unit Test Results
         if: always()
         uses: EnricoMi/publish-unit-test-result-action@v2
