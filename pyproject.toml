@@ -10,7 +10,7 @@ readme = "README.md"
 version = "0.1.0-dev"
 
 [tool.poetry.dependencies]
-python = "^3.9"
+python = ">=3.9,<3.12"
 rdflib = ">=6.0.0"
 unidecode = "*"
 python-dateutil = "^2.8.2"
@@ -29,4 +29,4 @@ exclude = [
   "**/build",
   "**/.tox",
 ]
-pythonVersion = "3.10"
+pythonVersion = "3.9"

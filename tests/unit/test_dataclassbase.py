@@ -1,4 +1,5 @@
 import datetime
+from sys import version_info
 from dataclasses import dataclass, field
 from typing import List, Set, Dict, TypeVar, Generic, Union, Optional
 
@@ -345,9 +346,14 @@ def test_datetime_deserialisation():
     the built in datetime lib doesn't fully support ISO-8601 strings, e.g. "2020-01-01T03:50Z" fails to parse.
      Ensure we're able to parse this example.
     """
-    with pytest.raises(ValueError) as err:
-        datetime.datetime.fromisoformat("2020-01-01T03:50Z")
-        assert err is not None
+
+    # Check python version is < 3.11 as datetime.fromisoformat was updated to 
+    # parse most ISO 8601 formats: 
+    # https://docs.python.org/3/whatsnew/3.11.html?highlight=fromisoformat
+    if version_info[0] == 3 and version_info[1] < 11:
+        with pytest.raises(ValueError) as err:
+            datetime.datetime.fromisoformat("2020-01-01T03:50Z")
+            assert err is not None
 
     @dataclass
     class A(DataClassBase):

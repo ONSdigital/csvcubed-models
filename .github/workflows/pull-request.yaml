@@ -1,15 +1,19 @@
-name: Release csvcubed-models
+name: Test csvcubed-models on pull request
 on:
-  release:
-    types: [published]
+  pull_request:
 
 jobs:
   test_in_environments:
     strategy:
       matrix:
-        # Test in all supported versions of python in both Windows and Ubuntu.
-        python-version: ['3.9', '3.10', '3.11']
+        # Test on linux with the newest version of python
+        python-version: ['3.11']
         os: [ubuntu-latest, windows-latest]
+        include:
+          # Test in Linux with Python 3.9
+          - os: ubuntu-latest
+            python-version: 3.9
+
     uses: ./.github/workflows/reusable-test.yaml
     with:
       os: ${{ matrix.os }}
