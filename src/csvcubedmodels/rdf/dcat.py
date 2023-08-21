@@ -92,7 +92,7 @@ class Resource(NewMetadataResource):
 
 
 
-class Distribution(NewMetadataResource):
+class Distribution(Resource):
 
     is_distribution_of: Ann[
         str, Triple(DCAT.isDistributionOf, PropertyStatus.recommended, URIRef)
