@@ -47,10 +47,10 @@ class Resource(NewMetadataResource):
         Optional[str], Triple(DCTERMS.publisher, PropertyStatus.recommended, URIRef)
     ]
     identifier: Ann[
-        str, Triple(DCTERMS.identifier, PropertyStatus.recommended, Literal)
+        Optional[str], Triple(DCTERMS.identifier, PropertyStatus.recommended, Literal)
     ]
     themes: Ann[
-        Set[str], Triple(DCAT.theme, PropertyStatus.recommended, URIRef)
+        list[str], Triple(DCAT.theme, PropertyStatus.recommended, URIRef)
     ]  # skos:Concept
     type: Ann[
         str, Triple(DCTERMS.type, PropertyStatus.recommended, URIRef)
@@ -60,11 +60,11 @@ class Resource(NewMetadataResource):
         str, Triple(DCAT.qualifiedRelation, PropertyStatus.recommended, URIRef)
     ]
     keywords: Ann[
-        Set[str],
+        list[str],
         Triple(DCAT.keyword, PropertyStatus.recommended, map_str_to_en_literal),
     ]
     landing_page: Ann[
-        Set[str], Triple(DCAT.landingPage, PropertyStatus.recommended, URIRef)
+        list[str], Triple(DCAT.landingPage, PropertyStatus.recommended, URIRef)
     ]
     qualified_attribution: Ann[
         str, Triple(PROV.qualifiedAttribution, PropertyStatus.recommended, URIRef)
@@ -127,13 +127,14 @@ class Distribution(Resource):
     ]
 
     conforms_to: Ann[str, Triple(DCTERMS.conformsTo, PropertyStatus.optional, URIRef)]
-    description: Ann[str, Triple(DCTERMS.description, PropertyStatus.recommended, map_str_to_en_literal)]
+    description: Ann[Optional[str], Triple(DCTERMS.description, PropertyStatus.recommended, map_str_to_en_literal)]
     #Dies to a method import issue had to change to this form
+    
     format: Ann[str, Triple(DCTERMS['format'], PropertyStatus.recommended, URIRef)]
     issued: Ann[datetime, Triple(DCTERMS.issued, PropertyStatus.recommended, Literal)]
-    license: Ann[str, Triple(DCTERMS.license, PropertyStatus.recommended, URIRef)]
+    license: Ann[Optional[str], Triple(DCTERMS.license, PropertyStatus.recommended, URIRef)]
     modified: Ann[datetime, Triple(DCTERMS.modified, PropertyStatus.recommended, Literal)]
-    publisher: Ann[str, Triple(DCTERMS.publisher, PropertyStatus.recommended, URIRef)]
+    publisher: Ann[Optional[str], Triple(DCTERMS.publisher, PropertyStatus.recommended, URIRef)]
     rights: Ann[str, Triple(DCTERMS.rights, PropertyStatus.recommended, URIRef)]
     title: Ann[str, Triple(DCTERMS.title, PropertyStatus.mandatory, map_str_to_en_literal)]
     has_policy: Ann[str, Triple(ODRL2.hasPolicy, PropertyStatus.recommended, URIRef)]
