@@ -86,9 +86,9 @@ class Resource(NewMetadataResource):
     def __init__(self, uri: str):
         NewMetadataResource.__init__(self, uri)
         self.rdf_types.add(DCAT.Resource)
-        self.themes = set()
-        self.keywords = set()
-        self.landing_page = set()
+        self.themes = []
+        self.keywords = []
+        self.landing_page = []
 
 
 
