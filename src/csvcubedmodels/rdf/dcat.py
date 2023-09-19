@@ -127,20 +127,24 @@ class Distribution(Resource):
     ]
 
     conforms_to: Ann[str, Triple(DCTERMS.conformsTo, PropertyStatus.optional, URIRef)]
-    description: Ann[str, Triple(DCTERMS.description, PropertyStatus.recommended, map_str_to_en_literal)]
-    #Dies to a method import issue had to change to this form
+    # Due to a method import issue, using DCTERMS['format'] instead of DCTERMS.format
     format: Ann[str, Triple(DCTERMS['format'], PropertyStatus.recommended, URIRef)]
-    issued: Ann[datetime, Triple(DCTERMS.issued, PropertyStatus.recommended, Literal)]
-    license: Ann[str, Triple(DCTERMS.license, PropertyStatus.recommended, URIRef)]
-    modified: Ann[datetime, Triple(DCTERMS.modified, PropertyStatus.recommended, Literal)]
-    publisher: Ann[str, Triple(DCTERMS.publisher, PropertyStatus.recommended, URIRef)]
-    rights: Ann[str, Triple(DCTERMS.rights, PropertyStatus.recommended, URIRef)]
-    title: Ann[str, Triple(DCTERMS.title, PropertyStatus.mandatory, map_str_to_en_literal)]
-    has_policy: Ann[str, Triple(ODRL2.hasPolicy, PropertyStatus.recommended, URIRef)]
-    
+
+    # Attributes below are all populated from the Resource parent class so can be deleted:
+    # description: Ann[str, Triple(DCTERMS.description, PropertyStatus.recommended, map_str_to_en_literal)]
+    # issued: Ann[datetime, Triple(DCTERMS.issued, PropertyStatus.recommended, Literal)]
+    # license: Ann[str, Triple(DCTERMS.license, PropertyStatus.recommended, URIRef)]
+    # modified: Ann[datetime, Triple(DCTERMS.modified, PropertyStatus.recommended, Literal)]
+    # publisher: Ann[str, Triple(DCTERMS.publisher, PropertyStatus.recommended, URIRef)]
+    # title: Ann[str, Triple(DCTERMS.title, PropertyStatus.mandatory, map_str_to_en_literal)]
+    # has_policy: Ann[str, Triple(ODRL2.hasPolicy, PropertyStatus.recommended, URIRef)]
+    # rights: Ann[str, Triple(DCTERMS.rights, PropertyStatus.recommended, URIRef)]
+
     def __init__(self, uri: str):
-        NewMetadataResource.__init__(self, uri)
+        Resource.__init__(self, uri)
         self.rdf_types.add(DCAT.Distribution)
+
+
 class Dataset(Resource):
 
     distribution: Ann[ Set[RdfResource[Distribution]],
