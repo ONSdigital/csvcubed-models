@@ -29,6 +29,10 @@ SKOS = Namespace("http://www.w3.org/2004/02/skos/core#")
 QB = Namespace("http://purl.org/linked-data/cube#")
 
 QUDT = Namespace("http://qudt.org/schema/qudt/")
+
+SPDX = Namespace("http://spdx.org/rdf/terms#")
+
+WDRS = Namespace("http://www.w3.org/2007/05/powder-s#")
 """
 QUDT System of Units 
 
