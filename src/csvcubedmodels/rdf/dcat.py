@@ -93,14 +93,10 @@ class Resource(NewMetadataResource):
 
 
 class Distribution(Resource):
-    # Properties below specified in csvcubed #911
     is_distribution_of: Ann[
         str, Triple(DCAT.isDistributionOf, PropertyStatus.recommended, URIRef)
     ]
-    # identifier inherited from Resource
     created: Ann[Optional[datetime], Triple(DCTERMS.created, PropertyStatus.recommended, Literal)]
-    # creator inherited from Resource (foaf:Agent?)
-    # issued inherited from Resource
     was_derived_from: Ann[Optional[Set[str]], Triple(PROV.wasDerivedFrom, PropertyStatus.recommended, URIRef)] # [prov.Entity]
     was_generated_by: Ann[Optional[str], Triple(PROV.wasGeneratedBy, PropertyStatus.recommended, URIRef)] # prov.Activity
     download_url: Ann[Optional[str], Triple(DCAT.downloadURL, PropertyStatus.recommended, URIRef)]
@@ -109,7 +105,6 @@ class Distribution(Resource):
     described_by: Ann[Optional[str], Triple(WDRS.describedBy, PropertyStatus.recommended, URIRef)]
     checksum: Ann[Optional[str], Triple(SPDX.Checksum, PropertyStatus.recommended, URIRef)]
 
-    # TODO Remove properties below?
     access_service: Ann[str, Triple(DCAT.accessService, PropertyStatus.recommended, URIRef)]
     access_url: Ann[str, Triple(DCAT.accessURL, PropertyStatus.recommended, URIRef)]
     compress_format: Ann[str, Triple(DCAT.compressFormat, PropertyStatus.recommended, URIRef)]
@@ -136,16 +131,6 @@ class Distribution(Resource):
     # Due to a method import issue, using DCTERMS['format'] instead of DCTERMS.format
     format: Ann[str, Triple(DCTERMS['format'], PropertyStatus.recommended, URIRef)]
 
-    # Attributes below are all available in the Resource parent class so can be deleted:
-    # description: Ann[str, Triple(DCTERMS.description, PropertyStatus.recommended, map_str_to_en_literal)]
-    # issued: Ann[datetime, Triple(DCTERMS.issued, PropertyStatus.recommended, Literal)]
-    # license: Ann[str, Triple(DCTERMS.license, PropertyStatus.recommended, URIRef)]
-    # modified: Ann[datetime, Triple(DCTERMS.modified, PropertyStatus.recommended, Literal)]
-    # publisher: Ann[str, Triple(DCTERMS.publisher, PropertyStatus.recommended, URIRef)]
-    # title: Ann[str, Triple(DCTERMS.title, PropertyStatus.mandatory, map_str_to_en_literal)]
-    # has_policy: Ann[str, Triple(ODRL2.hasPolicy, PropertyStatus.recommended, URIRef)]
-    # rights: Ann[str, Triple(DCTERMS.rights, PropertyStatus.recommended, URIRef)]
-
     def __init__(self, uri: str):
         Resource.__init__(self, uri)
         self.rdf_types.add(DCAT.Distribution)
@@ -157,7 +142,6 @@ class Dataset(Resource):
     distribution: Ann[ Set[RdfResource[Distribution]],
          Triple(DCAT.distribution, PropertyStatus.recommended, URIRef)
     ]
-
     accrual_periodicity: Ann[
         str, Triple(DCTERMS.accrualPeriodicity, PropertyStatus.recommended, URIRef)
     ]
