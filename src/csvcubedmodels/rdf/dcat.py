@@ -97,7 +97,7 @@ class Distribution(Resource):
         str, Triple(DCAT.isDistributionOf, PropertyStatus.recommended, URIRef)
     ]
     created: Ann[Optional[datetime], Triple(DCTERMS.created, PropertyStatus.recommended, Literal)]
-    was_derived_from: Ann[Optional[Set[str]], Triple(PROV.wasDerivedFrom, PropertyStatus.recommended, URIRef)] # [prov.Entity]
+    was_derived_from: Ann[Set[str], Triple(PROV.wasDerivedFrom, PropertyStatus.recommended, URIRef)] # [prov.Entity]
     was_generated_by: Ann[Optional[str], Triple(PROV.wasGeneratedBy, PropertyStatus.recommended, URIRef)] # prov.Activity
     download_url: Ann[Optional[str], Triple(DCAT.downloadURL, PropertyStatus.recommended, URIRef)]
     byte_size: Ann[Optional[float], Triple(DCAT.byteSize, PropertyStatus.recommended, lambda l: Literal(l, XSD.decimal))]
