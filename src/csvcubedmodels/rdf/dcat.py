@@ -15,7 +15,7 @@ from .resource import (
     map_str_to_markdown,
     Resource as RdfResource,
 )
-from csvcubedmodels.rdf.namespaces import DCAT, DCTERMS, XSD, PROV, ODRL2, FOAF
+from csvcubedmodels.rdf.namespaces import DCAT, DCTERMS, XSD, PROV, ODRL2, FOAF, WDRS, SPDX
 
 
 class Resource(NewMetadataResource):
@@ -93,19 +93,22 @@ class Resource(NewMetadataResource):
 
 
 class Distribution(Resource):
-
     is_distribution_of: Ann[
         str, Triple(DCAT.isDistributionOf, PropertyStatus.recommended, URIRef)
     ]
+    created: Ann[Optional[datetime], Triple(DCTERMS.created, PropertyStatus.recommended, Literal)]
+    was_derived_from: Ann[Set[str], Triple(PROV.wasDerivedFrom, PropertyStatus.recommended, URIRef)] # [prov.Entity]
+    was_generated_by: Ann[Optional[str], Triple(PROV.wasGeneratedBy, PropertyStatus.recommended, URIRef)] # prov.Activity
+    download_url: Ann[Optional[str], Triple(DCAT.downloadURL, PropertyStatus.recommended, URIRef)]
+    byte_size: Ann[Optional[float], Triple(DCAT.byteSize, PropertyStatus.recommended, lambda l: Literal(l, XSD.decimal))]
+    media_type: Ann[Optional[str], Triple(DCAT.mediaType, PropertyStatus.recommended, URIRef)]
+    described_by: Ann[Optional[str], Triple(WDRS.describedBy, PropertyStatus.recommended, URIRef)]
+    checksum: Ann[Optional[str], Triple(SPDX.Checksum, PropertyStatus.recommended, URIRef)]
 
     access_service: Ann[str, Triple(DCAT.accessService, PropertyStatus.recommended, URIRef)]
     access_url: Ann[str, Triple(DCAT.accessURL, PropertyStatus.recommended, URIRef)]
-    byte_size: Ann[float, Triple(DCAT.byteSize, PropertyStatus.recommended, lambda l: Literal(l, XSD.decimal))]
     compress_format: Ann[str, Triple(DCAT.compressFormat, PropertyStatus.recommended, URIRef)]
-    download_url: Ann[str, Triple(DCAT.downloadURL, PropertyStatus.recommended, URIRef)]
-    media_type: Ann[str, Triple(DCAT.mediaType, PropertyStatus.recommended, URIRef)]
     package_format: Ann[str, Triple(DCAT.packageFormat, PropertyStatus.optional, URIRef)]
-
     spatial: Ann[str, Triple(DCTERMS.spatial, PropertyStatus.recommended, URIRef)]
     spatial_resolution_in_meters: Ann[
         float,
@@ -115,7 +118,6 @@ class Distribution(Resource):
             lambda l: Literal(l, XSD.decimal),
         ),
     ]
-
     temporal: Ann[str, Triple(DCTERMS.temporal, PropertyStatus.recommended, URIRef)]
     temporal_resolution: Ann[
         str,
@@ -125,24 +127,14 @@ class Distribution(Resource):
             lambda l: Literal(l, XSD.duration),
         ),
     ]
-
     conforms_to: Ann[str, Triple(DCTERMS.conformsTo, PropertyStatus.optional, URIRef)]
     # Due to a method import issue, using DCTERMS['format'] instead of DCTERMS.format
     format: Ann[str, Triple(DCTERMS['format'], PropertyStatus.recommended, URIRef)]
 
-    # Attributes below are all populated from the Resource parent class so can be deleted:
-    # description: Ann[str, Triple(DCTERMS.description, PropertyStatus.recommended, map_str_to_en_literal)]
-    # issued: Ann[datetime, Triple(DCTERMS.issued, PropertyStatus.recommended, Literal)]
-    # license: Ann[str, Triple(DCTERMS.license, PropertyStatus.recommended, URIRef)]
-    # modified: Ann[datetime, Triple(DCTERMS.modified, PropertyStatus.recommended, Literal)]
-    # publisher: Ann[str, Triple(DCTERMS.publisher, PropertyStatus.recommended, URIRef)]
-    # title: Ann[str, Triple(DCTERMS.title, PropertyStatus.mandatory, map_str_to_en_literal)]
-    # has_policy: Ann[str, Triple(ODRL2.hasPolicy, PropertyStatus.recommended, URIRef)]
-    # rights: Ann[str, Triple(DCTERMS.rights, PropertyStatus.recommended, URIRef)]
-
     def __init__(self, uri: str):
         Resource.__init__(self, uri)
         self.rdf_types.add(DCAT.Distribution)
+        self.was_derived_from = set()
 
 
 class Dataset(Resource):
@@ -150,7 +142,6 @@ class Dataset(Resource):
     distribution: Ann[ Set[RdfResource[Distribution]],
          Triple(DCAT.distribution, PropertyStatus.recommended, URIRef)
     ]
-
     accrual_periodicity: Ann[
         str, Triple(DCTERMS.accrualPeriodicity, PropertyStatus.recommended, URIRef)
     ]
