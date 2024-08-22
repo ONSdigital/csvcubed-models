@@ -19,3 +19,5 @@ poetry add <some-package>
 ```
 
 And once that has completed, if you are working inside the docker dev container, you must rebuild the container before the packages will be available for your use.
+
+Copyright 2024 Office for National Statistics, under Crown Copyright 
